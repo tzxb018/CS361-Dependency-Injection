@@ -1,0 +1,46 @@
+﻿<h2>Contact List</h2>
+<a href="/Home/AddContact" class="btn btn-primary">Add Contact</a>
+<button class="btn btn-default" onclick="resetTable()">Refresh Table</button>
+
+<table class="table table-responsive">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email Address</th>
+            <th>Phone Number</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+</table>
+@section Scripts{
+    <script>
+
+        function setupTable() {
+            getContacts().done(function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var contact = data[i];
+                    var editLink = `<a class="btn btn-warning" href="/Home/EditContact?id=${contact.Id}">Edit</a>`;
+                    var deleteButton = `<button class="btn btn-danger" onclick=deleteHandler(${contact.Id})>Delete</button>`;
+                    $("#table-body").append(`<tr><td>${data[i].FirstName}</td><td>${data[i].LastName}</td><td>${data[i].EmailAddress}</td><td>${data[i].PhoneNumber}</td><td>${editLink}${deleteButton}</td></tr>`);
+                }
+            });
+        };
+
+        function deleteHandler(id) {
+            deleteContact(id).done(function () {
+                resetTable();
+            });
+        }
+
+        function resetTable() {
+            $("#table-body").empty();
+            setupTable();
+        }
+
+        resetTable();
+    </script>
+}
+
+
