@@ -1,3 +1,7 @@
+using DependencyInjection.Accessors;
+using DependencyInjection.BusinessLogic;
+using DependencyInjection.Core.Accessors;
+using DependencyInjection.Core.Engines;
 using System;
 
 using Unity;
@@ -42,6 +46,8 @@ namespace DependencyInjection.Web
 
             // TODO: Register your type's mappings here.
             // container.RegisterType<IProductRepository, ProductRepository>();
+            container.RegisterType<IContactsAccessor, ContactsAccessor>();
+            container.RegisterType<IContactsEngine, ContactsEngine>();
         }
     }
 }
