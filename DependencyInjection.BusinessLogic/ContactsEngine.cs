@@ -8,7 +8,8 @@ using System.Text.RegularExpressions;
 
 namespace DependencyInjection.BusinessLogic
 {
-    public class ContactsEngine
+    public class ContactsEngine: IContactsEngine
+
     {
         private readonly ContactsAccessor _contactsAccessor;
 
