@@ -1,11 +1,9 @@
-﻿using DependencyInjection.Web.Models;
-using Microsoft.Ajax.Utilities;
+﻿using DependencyInjection.BusinessLogic;
+using DependencyInjection.Core.Models;
 using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
-using System.Net;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 using System.Web.Http;
@@ -15,11 +13,11 @@ namespace DependencyInjection.Web.Controllers
     [RoutePrefix("api/contact")]
     public class ContactsController : ApiController
     {
-        private readonly ApplicationDbContext db;
+        private readonly ContactsEngine db;
 
         public ContactsController()
         {
-            db = new ApplicationDbContext();
+            db = new ContactsEngine();
         }
 
         // GET: api/contact
@@ -27,7 +25,8 @@ namespace DependencyInjection.Web.Controllers
         [HttpGet]
         public IHttpActionResult GetContacts()
         {
-            return Ok(db.Contacts);
+            return Ok(db.GetContacts());
+            //return Ok(db.Contacts);
         }
 
         // GET: api/contact/5
@@ -36,7 +35,7 @@ namespace DependencyInjection.Web.Controllers
         public IHttpActionResult GetContact(string id)
         {
             var parsedId = int.Parse(id);
-            Contact contact = db.Contacts.Find(parsedId);
+            Contact contact = db.GetContact(parsedId);
 
             if (contact == null)
             {
@@ -64,7 +63,7 @@ namespace DependencyInjection.Web.Controllers
                 // using regex to determine if phone number is valid
                 if (phoneValidation(contact.PhoneNumber))
                 {
-                    db.Contacts.Add(contact);
+                    db.InsertContact(contact);
                 }
                 else
                 {
@@ -78,21 +77,21 @@ namespace DependencyInjection.Web.Controllers
                 BadRequest("Email Address is invalid");
             }
 
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (DbUpdateException)
-            {
-                if (ContactExists(contact.Id))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            //try
+            //{
+            //    db.SaveChanges();
+            //}
+            //catch (DbUpdateException)
+            //{
+            //    if (ContactExists(contact.Id))
+            //    {
+            //        return Conflict();
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+            //}
 
             return Ok(contact);
         }
@@ -119,7 +118,8 @@ namespace DependencyInjection.Web.Controllers
                 // using regex to determine if phone number is valid
                 if (phoneValidation(contact.PhoneNumber))
                 {
-                    db.Entry(contact).State = EntityState.Modified;
+                    db.UpdateContact(parsedId, contact);
+                    //db.Entry(contact).State = EntityState.Modified;
                 }
                 else
                 {
@@ -136,21 +136,21 @@ namespace DependencyInjection.Web.Controllers
 
 
 
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ContactExists(parsedId))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            //try
+            //{
+            //    db.SaveChanges();
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!ContactExists(parsedId))
+            //    {
+            //        return NotFound();
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+            //}
 
             return Ok();
         }
@@ -164,30 +164,30 @@ namespace DependencyInjection.Web.Controllers
         {
             var parsedId = int.Parse(id);
 
-            Contact contact = db.Contacts.Find(parsedId);
+            Contact contact = db.GetContact(parsedId);
             if (contact == null)
             {
                 return NotFound();
             }
 
-            db.Contacts.Remove(contact);
-            db.SaveChanges();
+            db.DeleteContact(contact.Id);
+            //db.SaveChanges();
 
             return Ok(contact);
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+        //protected override void Dispose(bool disposing)
+        //{
+        //    if (disposing)
+        //    {
+        //        db.Dispose();
+        //    }
+        //    base.Dispose(disposing);
+        //}
 
         private bool ContactExists(int id)
         {
-            return db.Contacts.Count(e => e.Id == id) > 0;
+            return db.GetContacts().Count(e => e.Id == id) > 0;
         }
 
         // derived from https://stackoverflow.com/questions/5342375/regex-email-validation
