@@ -1,9 +1,13 @@
 ﻿using DependencyInjection.Web.Models;
+using Microsoft.Ajax.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
+using System.Text.RegularExpressions;
 using System.Web.Http;
 
 namespace DependencyInjection.Web.Controllers
@@ -42,6 +46,7 @@ namespace DependencyInjection.Web.Controllers
             return Ok(contact);
         }
 
+
         // POST: api/Contacts
         [Route("")]
         [HttpPost]
@@ -52,7 +57,26 @@ namespace DependencyInjection.Web.Controllers
                 return BadRequest(ModelState);
             }
 
-            db.Contacts.Add(contact);
+
+            // using email validation function to determine if email address is valid
+            if (emailValidation(contact.EmailAddress))
+            {
+                // using regex to determine if phone number is valid
+                if (phoneValidation(contact.PhoneNumber))
+                {
+                    db.Contacts.Add(contact);
+                }
+                else
+                {
+                    Console.WriteLine("Phone number invalid");
+                    BadRequest("Phone number is invalid.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Email address invlaid");
+                BadRequest("Email Address is invalid");
+            }
 
             try
             {
@@ -89,7 +113,28 @@ namespace DependencyInjection.Web.Controllers
                 return BadRequest();
             }
 
-            db.Entry(contact).State = EntityState.Modified;
+            // using email validation function to determine if email address is valid
+            if (emailValidation(contact.EmailAddress))
+            {
+                // using regex to determine if phone number is valid
+                if (phoneValidation(contact.PhoneNumber))
+                {
+                    db.Entry(contact).State = EntityState.Modified;
+                }
+                else
+                {
+                    Console.WriteLine("Phone number invalid");
+                    BadRequest("Phone number is invalid.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Email address invlaid");
+                BadRequest("Email Address is invalid");
+            }
+
+
+
 
             try
             {
@@ -143,6 +188,26 @@ namespace DependencyInjection.Web.Controllers
         private bool ContactExists(int id)
         {
             return db.Contacts.Count(e => e.Id == id) > 0;
+        }
+
+        // derived from https://stackoverflow.com/questions/5342375/regex-email-validation
+        public bool emailValidation(string email_address)
+        {
+            try
+            {
+                MailAddress mailAddress = new MailAddress(email_address);
+                return true;
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+        }
+
+        // derived from https://forums.asp.net/t/2119206.aspx?C+code+to+validate+email+and+10+digit+US+phone+number
+        public bool phoneValidation(string phone_num)
+        {
+            return Regex.IsMatch(phone_num, @"^(\([0-9]{3}\)|[0-9]{3}-)[0-9]{3}-[0-9]{4}|(\([0-9]{3}\)|[0-9]{3})[0-9]{3}[0-9]{4}$");
         }
     }
 }
