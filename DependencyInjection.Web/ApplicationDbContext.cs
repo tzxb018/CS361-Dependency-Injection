@@ -1,4 +1,4 @@
-﻿using DependencyInjection.Web.Models;
+﻿using DependencyInjection.Core.Models;
 using System.Data.Entity;
 
 public class ApplicationDbContext : DbContext
