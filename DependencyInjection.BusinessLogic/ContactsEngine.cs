@@ -62,30 +62,29 @@ namespace DependencyInjection.BusinessLogic
 
         public Contact UpdateContact(int id, Contact updated)
         {
-            var contact = _contactsAccessor.Find(id);
-            if (contact != null)
-            {
-                // using email validation function to determine if email address is valid
-                if (emailValidation(updated.EmailAddress))
-                {
-                    // using regex to determine if phone number is valid
-                    if (phoneValidation(updated.PhoneNumber))
-                    {
+            //var contact = _contactsAccessor.Find(id);
 
-                        _contactsAccessor.Update(updated);
-                        _contactsAccessor.SaveChanges();
-                    }
-                    else
-                    {
-                        Console.WriteLine("Phone number is invalid.");
-                    }
+            // using email validation function to determine if email address is valid
+            if (emailValidation(updated.EmailAddress))
+            {
+                // using regex to determine if phone number is valid
+                if (phoneValidation(updated.PhoneNumber))
+                {
+
+                    _contactsAccessor.Update(updated);
+                    _contactsAccessor.SaveChanges();
                 }
                 else
                 {
-                    Console.WriteLine("Email Address is invalid");
+                    Console.WriteLine("Phone number is invalid.");
                 }
-
             }
+            else
+            {
+                Console.WriteLine("Email Address is invalid");
+            }
+
+            
 
             return updated; 
             //throw new NotImplementedException();
